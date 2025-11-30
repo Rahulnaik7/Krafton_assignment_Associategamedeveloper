@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Collectors - Multiplayer Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #16213e 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(45deg, #00d4ff, #ff00ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.8)); }
+        }
+        
+        #gameContainer {
+            position: relative;
+            border: 3px solid transparent;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 15px;
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.3),
+                inset 0 0 30px rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        #gameContainer::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #00d4ff, #ff00ff, #00ff88, #00d4ff);
+            background-size: 300% 300%;
+            border-radius: 15px;
+            z-index: -1;
+            animation: borderGlow 3s ease infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        canvas {
+            display: block;
+            border-radius: 10px;
+        }
+        
+        #status {
+            margin-top: 20px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9));
+            border-radius: 12px;
+            min-width: 500px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        #connectionStatus {
+            font-size: 14px;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        
+        #scores {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            gap: 20px;
+        }
+        
+        .score-item {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(255, 0, 255, 0.2));
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .score-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .score-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        .score-item span {
+            color: #00ff88;
+            font-size: 1.2em;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+        
+        #instructions {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9));
+            border-radius: 12px;
+            max-width: 700px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+        
+        #instructions h3 {
+            margin-top: 0;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        #instructions p {
+            margin: 10px 0;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+        
+        .key {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #2a2a4e, #1a1a3e);
+            border-radius: 6px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            color: #00d4ff;
+            margin: 0 3px;
+            text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+        }
+        
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: particleFloat 1s ease-out forwards;
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(0);
+            }
+        }
+        
+        .mode-selector {
+            margin-bottom: 20px;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .mode-selector a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(255, 0, 255, 0.2));
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 8px;
+            color: #00d4ff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .mode-selector a:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(255, 0, 255, 0.4));
+            transform: translateY(-2px);
+        }
+        
+        .mode-selector a.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.6), rgba(255, 0, 255, 0.6));
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>⚡ Cosmic Collectors ⚡</h1>
+    
+    <div class="mode-selector" style="margin-bottom: 20px; z-index: 1; position: relative;">
+        <a href="index.html" class="active">2D Mode</a>
+        <!-- <a href="index-3d.html">3D Mode</a> -->
+    </div>
+    
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+    
+    <div id="status">
+        <div id="connectionStatus">Connecting...</div>
+        <div id="scores">
+            <div class="score-item">Player 1: <span id="score1">0</span></div>
+            <div class="score-item">Player 2: <span id="score2">0</span></div>
+        </div>
+    </div>
+    
+    <div id="instructions">
+        <h3>🎮 Controls</h3>
+        <p>Use <span class="key">W</span> <span class="key">A</span> <span class="key">S</span> <span class="key">D</span> or Arrow Keys to move</p>
+        <p>✨ Collect cosmic coins to increase your score. Server validates all pickups.</p>
+        <p>🌊 Remote players are smoothly interpolated despite 200ms network latency.</p>
+    </div>
+    
+    <script src="client.js"></script>
+</body>
+</html>
+
