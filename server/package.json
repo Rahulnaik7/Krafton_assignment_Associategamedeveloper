@@ -1,0 +1,16 @@
+{
+  "name": "multiplayer-game-server",
+  "version": "1.0.0",
+  "description": "Authoritative game server for multiplayer state synchronization test",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "keywords": ["game", "multiplayer", "websocket", "server"],
+  "author": "",
+  "license": "MIT"
+}
+

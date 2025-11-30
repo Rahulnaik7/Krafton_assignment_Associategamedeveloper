@@ -1,0 +1,21 @@
+{
+  "name": "multiplayer-state-synchronization",
+  "version": "1.0.0",
+  "description": "Multiplayer game demonstrating server authority, client-side interpolation, and network latency simulation",
+  "scripts": {
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "start:server": "cd server && npm start",
+    "start:client": "cd client && npm start",
+    "test:validation": "node tools/test-validation.js"
+  },
+  "keywords": [
+    "game",
+    "multiplayer",
+    "websocket",
+    "server-authority",
+    "interpolation"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+
